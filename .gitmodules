@@ -1,0 +1,6 @@
+[submodule "matplotlib_exact"]
+	path = matplotlib_exact
+	url = https://github.com/rpylkkanen/matplotlib_exact
+[submodule "matplotlib_style"]
+	path = matplotlib_style
+	url = https://github.com/rpylkkanen/matplotlib_style
