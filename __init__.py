@@ -1,3 +1,3 @@
 from .matplotlib_exact import Alignment
 from .matplotlib_style import colors
-import matplotlib_extension
+from .matplotlib_extension import *
