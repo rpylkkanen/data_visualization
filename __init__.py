@@ -87,3 +87,110 @@ def template(box='h', n=1, dpi=200):
 	axes = box.children
 	ax = axes[0]
 	return fig, box, axes, ax
+
+
+### Processing
+
+import pandas as pd
+from enum import Enum
+
+def read_sec_ars(f, labels):
+
+  with open(f, 'r', encoding="ISO-8859-1") as file:
+    lines = file.readlines()
+    lines = [line for line in lines if 'Page' not in line]
+
+  def format_line(line):
+      line = line.split('"')
+      for symbol in ['', '\t', '\n']:
+        if line:
+          while symbol in line:
+            line.remove(symbol)
+      return line
+
+  start = False
+  label = None
+  label_idx = 0
+  hold_data = False
+  data = {}
+  for i, line in enumerate(lines):
+    if 'Mp' in line:
+      label = labels[label_idx]
+      label_idx += 1
+      data[label] = {
+          '#': [],
+          'Slice Log MW': [],
+          'dwt/d(logM)': [],
+      }
+    if label != None:
+      if 'GPC' not in line and ':' not in line and '#' not in line:
+        line = line.rstrip()
+        line = line.replace('"', '')
+        line = line.replace(',', '.')
+        line = line.split('\t')
+        if len(line) != 3:
+          hold_data = True
+          result = line
+        elif hold_data and len(line) == 2:
+          result = result + line
+          hold_data = False
+        else:
+          result = line
+        if len(result) == 3:
+          for key, value in zip(data[label].keys(), result):
+            data[label][key].append(float(value))
+
+  data = dict(sorted(data.items()))
+
+  class GPC(Enum):
+    DEFAULT = 0
+    RESULT = 1
+    DISTRIBUTION_TABLE = 2
+
+  mode = GPC.DEFAULT
+  result = {
+      '#': [],
+      'label': [],
+      'Mn (Daltons)': [], 
+      'Mw (Daltons)': [],
+      'Mz (Daltons)': [],
+      'MP (Daltons)': [],
+      'Polydispersity': [],
+      '(µV*sec)': [],
+      'Processing Method': [], 
+      'Result Id': [],
+      }
+
+  with open(f, 'r', encoding="ISO-8859-1") as file:
+    lines = file.readlines()
+    for line in lines:
+      line = line.rstrip().replace('"', '').replace(',', '.')
+      if 'Page' in line:
+        continue
+      if line == 'GPC Results':
+        mode = GPC.RESULT
+        continue
+      elif line == 'GPC Distribution Table':
+        mode = GPC.DISTRIBUTION_TABLE
+        continue
+      else:
+        if mode == GPC.RESULT:
+          line = line.split('\t')
+          if len(line) == 10 and line[0] != '#':
+            if line[0] == '#':
+              result.append([])
+            else:
+              for key, value in zip(result.keys(), line):
+                result[key].append(value)
+        elif mode == GPC.DISTRIBUTION_TABLE:
+          if 'Mp' in line:
+            mp = int(line.split(' ')[1])
+            print(repr(line), mp)
+          line = line.split('\t')
+          
+  table = pd.DataFrame(result)
+  table = table.astype({'#': int, 'Mn (Daltons)': int, 'Mw (Daltons)': int, 'Mz (Daltons)': int, 'MP (Daltons)': int, 'Polydispersity': float, '(µV*sec)': int, 'Result Id': int})
+  table = table.sort_values(by=['label'])
+
+  return table, data
+    
