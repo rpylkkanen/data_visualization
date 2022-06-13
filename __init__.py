@@ -185,7 +185,6 @@ def read_sec_ars(f, labels):
         elif mode == GPC.DISTRIBUTION_TABLE:
           if 'Mp' in line:
             mp = int(line.split(' ')[1])
-            print(repr(line), mp)
           line = line.split('\t')
           
   table = pd.DataFrame(result)
