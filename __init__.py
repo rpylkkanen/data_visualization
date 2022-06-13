@@ -72,7 +72,7 @@ def gaussian_fit(number, x, y, guess=None, bounds=None):
   func = make_multimodal(number)
   params, covariances = curve_fit(func, x, y, p0=guess, bounds=[0, np.inf])
   stdevs = np.sqrt(np.diag(covariances))
-  rsq = calculate_rsquared(x, y, func, params)
+  rsq = r2(x, y, func, params)
   return func, params, stdevs, rsq
 
 
