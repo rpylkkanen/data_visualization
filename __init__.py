@@ -48,6 +48,66 @@ from scipy.optimize import curve_fit
 
 import numpy as np
 
+from BaselineRemoval import BaselineRemoval
+
+def read_maldi_dx(path):
+
+  with open(path) as f:
+    data = f.readlines()[22].split(';')
+    data.remove('\n')
+    frame = pd.DataFrame(data)
+    l = frame[0].str.split(',')
+    x = []
+    y = []
+    for i in l:
+      x.append(float(i[0]))
+      y.append(float(i[1]))
+
+    x = np.array(x)
+    y = np.array(y)
+    
+    return x, y
+
+
+def normalize(y, remove_baseline=False):
+  
+  if remove_baseline:
+    y = BaselineRemoval(y).ZhangFit()
+  values, counts = np.unique(y, return_counts=True)
+  index = np.argmax(counts)
+  mode = values[index]
+  y = (y - mode)/np.ptp(y)
+
+  return y
+
+def filter_xy(x, y, xmin=None, xmax=None):
+  # xlims
+  if xmin is not None:
+    idx = (x >= xmin)
+    x, y = x[idx], y[idx]
+  if xmax is not None:
+    idx = (x <= xmax)
+    x, y = x[idx], y[idx]
+  return x, y
+
+def gompertz(t, a, b, c):
+  return a * np.exp(-b * np.exp(-c * t))
+
+def gompertz_error(popt, pcov):
+  sigma = np.sqrt(np.diag(pcov))
+  values = np.array([
+    gompertz(xfit, popt[0] + sigma[0], popt[1] + sigma[1], popt[2] + sigma[2]), 
+    gompertz(xfit, popt[0] + sigma[0], popt[1] - sigma[1], popt[2] + sigma[2]),   
+    gompertz(xfit, popt[0] + sigma[0], popt[1] + sigma[1], popt[2] - sigma[2]), 
+    gompertz(xfit, popt[0] + sigma[0], popt[1] - sigma[1], popt[2] - sigma[2]), 
+    gompertz(xfit, popt[0] - sigma[0], popt[1] + sigma[1], popt[2] + sigma[2]), 
+    gompertz(xfit, popt[0] - sigma[0], popt[1] - sigma[1], popt[2] + sigma[2]),
+    gompertz(xfit, popt[0] - sigma[0], popt[1] + sigma[1], popt[2] - sigma[2]), 
+    gompertz(xfit, popt[0] - sigma[0], popt[1] - sigma[1], popt[2] - sigma[2]) 
+  ])
+  errfit = np.std(values, axis=0)
+  return errfit
+
 def r2(x, y, func, params):
   residuals = y - func(x, *params)
   residual_sum_of_squares = np.sum(residuals**2)
@@ -58,7 +118,7 @@ def r2(x, y, func, params):
 def gauss(x,mu,sigma,A):
     return A*np.exp(-(x-mu)**2/2/sigma**2)
 
-def make_multimodal(num):
+def make_multimodal_gauss(num):
   params = []
   ret = []
   for i in range(num):
@@ -68,13 +128,35 @@ def make_multimodal(num):
   exec(definition)
   return locals()['multimodal']
 
-def gaussian_fit(number, x, y, guess=None, bounds=None):
-  func = make_multimodal(number)
+def gaussian_fit(number, x, y, guess=None):
+  func = make_multimodal_gauss(number)
   params, covariances = curve_fit(func, x, y, p0=guess, bounds=[0, np.inf])
   stdevs = np.sqrt(np.diag(covariances))
   rsq = r2(x, y, func, params)
   return func, params, stdevs, rsq
 
+def bigauss(x, center=0.0, w1=1.0, w2=1.0, height=1.0):
+  y = x.copy()
+  y[x < center] = height*np.exp(-0.5*((x[x < center] - center)/w1)**2)
+  y[x >= center] = height*np.exp(-0.5*((x[x >= center] - center)/w2)**2)
+  return y
+
+def make_multimodal_bigauss(num):
+  params = []
+  ret = []
+  for i in range(num):
+    params += [f'center_{i}', f'w1_{i}', f'w2_{i}', f'height_{i}']
+    ret += [f'bigauss(x, center_{i}, w1_{i}, w2_{i}, height_{i})']
+  definition = f'def multimodal(x, {", ".join(params)}): return {" + ".join(ret)}'
+  exec(definition)
+  return locals()['multimodal']
+
+def bigaussian_fit(number, x, y, guess=None):
+  func = make_multimodal_bigauss(number)
+  params, covariances = curve_fit(func, x, y, p0=guess, bounds=[0, np.inf])
+  stdevs = np.sqrt(np.diag(covariances))
+  rsq = r2(x, y, func, params)
+  return func, params, stdevs, rsq
 
 ### Template
 
