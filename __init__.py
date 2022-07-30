@@ -93,17 +93,17 @@ def filter_xy(x, y, xmin=None, xmax=None):
 def gompertz(t, a, b, c):
   return a * np.exp(-b * np.exp(-c * t))
 
-def gompertz_error(popt, pcov):
+def gompertz_error(x, popt, pcov):
   sigma = np.sqrt(np.diag(pcov))
   values = np.array([
-    gompertz(xfit, popt[0] + sigma[0], popt[1] + sigma[1], popt[2] + sigma[2]), 
-    gompertz(xfit, popt[0] + sigma[0], popt[1] - sigma[1], popt[2] + sigma[2]),   
-    gompertz(xfit, popt[0] + sigma[0], popt[1] + sigma[1], popt[2] - sigma[2]), 
-    gompertz(xfit, popt[0] + sigma[0], popt[1] - sigma[1], popt[2] - sigma[2]), 
-    gompertz(xfit, popt[0] - sigma[0], popt[1] + sigma[1], popt[2] + sigma[2]), 
-    gompertz(xfit, popt[0] - sigma[0], popt[1] - sigma[1], popt[2] + sigma[2]),
-    gompertz(xfit, popt[0] - sigma[0], popt[1] + sigma[1], popt[2] - sigma[2]), 
-    gompertz(xfit, popt[0] - sigma[0], popt[1] - sigma[1], popt[2] - sigma[2]) 
+    gompertz(x, popt[0] + sigma[0], popt[1] + sigma[1], popt[2] + sigma[2]), 
+    gompertz(x, popt[0] + sigma[0], popt[1] - sigma[1], popt[2] + sigma[2]),   
+    gompertz(x, popt[0] + sigma[0], popt[1] + sigma[1], popt[2] - sigma[2]), 
+    gompertz(x, popt[0] + sigma[0], popt[1] - sigma[1], popt[2] - sigma[2]), 
+    gompertz(x, popt[0] - sigma[0], popt[1] + sigma[1], popt[2] + sigma[2]), 
+    gompertz(x, popt[0] - sigma[0], popt[1] - sigma[1], popt[2] + sigma[2]),
+    gompertz(x, popt[0] - sigma[0], popt[1] + sigma[1], popt[2] - sigma[2]), 
+    gompertz(x, popt[0] - sigma[0], popt[1] - sigma[1], popt[2] - sigma[2]) 
   ])
   errfit = np.std(values, axis=0)
   return errfit
