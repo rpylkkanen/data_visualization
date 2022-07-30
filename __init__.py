@@ -18,7 +18,7 @@ from .matplotlib_extension import *
 
 ### Color shortcuts
 
-color_index = 5
+color_index = 7
 
 red = colors['red'][color_index]
 pink = colors['pink'][color_index]
