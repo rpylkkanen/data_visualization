@@ -77,6 +77,15 @@ brown = colors['brown'][color_index]
 grey = colors['grey'][color_index]
 blue_grey = colors['blue grey'][color_index]
 
+def get_colors(color_abbrevs_str, shade_index):
+    color_abbrevs_list = [color_abbrevs_str[i:i+2] for i in range(0, len(color_abbrevs_str), 2)]
+    codes = [color_abbreviations[color] for color in color_abbrevs_list]
+    result = [colors[code][shade_index] for code in codes]
+    if len(result) == 1:
+      result = result[0]
+    elif len(result) == 0:
+      result = None
+    return result
 
 ### Fitting
 
