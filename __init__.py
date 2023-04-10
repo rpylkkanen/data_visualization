@@ -12,7 +12,7 @@ if missing:
     subprocess.check_call([python, '-m', 'pip', 'install', *missing])
 
 from .matplotlib_exact import Alignment
-from .matplotlib_style import colors
+from .matplotlib_style import colors, color_abbreviations
 from .matplotlib_extension import *
 
 ## Image adjustments
