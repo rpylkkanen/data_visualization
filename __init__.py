@@ -55,6 +55,9 @@ def smooth(y, kwargs={}):
 
 ### Color shortcuts
 
+def c(key, idx=7):
+  return colors[key][idx]
+
 color_index = 7
 
 red = colors['red'][color_index]
