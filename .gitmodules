@@ -4,10 +4,10 @@
 [submodule "matplotlib_style"]
 	path = matplotlib_style
 	url = https://github.com/rpylkkanen/matplotlib_style
-[submodule "matplotlib_shape"]
-	path = matplotlib_shape
-	url = https://github.com/rpylkkanen/matplotlib_shape
 [submodule "matplotlib_extension"]
 	path = matplotlib_extension
 	url = https://github.com/rpylkkanen/matplotlib_extension
 
+[submodule "matplotlib_shape"]
+	path = matplotlib_shape
+	url = https://github.com/rpylkkanen/matplotlib_shape
