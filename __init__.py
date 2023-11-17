@@ -14,6 +14,7 @@ if missing:
 from .matplotlib_exact import Alignment
 from .matplotlib_style import *
 from .matplotlib_extension import *
+from .matplotlib_shape import *
 
 ## Image adjustments
 
