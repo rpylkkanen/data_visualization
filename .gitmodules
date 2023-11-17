@@ -7,3 +7,6 @@
 [submodule "matplotlib_extension"]
 	path = matplotlib_extension
 	url = https://github.com/rpylkkanen/matplotlib_extension
+[submodule "matplotlib_shape/matplotlib_shape"]
+	path = matplotlib_shape/matplotlib_shape
+	url = https://github.com/rpylkkanen/matplotlib_shape
