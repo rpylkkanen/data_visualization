@@ -1,1 +1,1 @@
-from .matplotlib_shape import *
+from .shapes import *
