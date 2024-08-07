@@ -4,7 +4,7 @@ import sys
 import subprocess
 import pkg_resources
 
-required = {'matplotlib', 'numpy', 'pandas', 'scipy', 'BaselineRemoval', 'matplotlib_scalebar'}
+required = {'matplotlib', 'numpy', 'pandas', 'scipy', 'BaselineRemoval'}
 installed = {pkg.key for pkg in pkg_resources.working_set}
 missing = required - installed
 if missing:
